@@ -1,0 +1,6 @@
+@BallastLane.ReminderApp.Presentation_HostAddress = http://localhost:5221
+
+GET {{BallastLane.ReminderApp.Presentation_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
