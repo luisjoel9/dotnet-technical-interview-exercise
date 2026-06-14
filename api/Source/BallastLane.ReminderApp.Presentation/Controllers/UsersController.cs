@@ -48,6 +48,15 @@ namespace BallastLane.ReminderApp.Presentation.Controllers
             return Ok(exists);
         }
 
+        [HttpPost("login")]
+        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginRequestDto request)
+        {
+            _logger.LogInformation("Login attempt for email: {Email}", request.Email);
+            var authResponse = await _service.LoginAsync(request);
+
+            return Ok(authResponse);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(UserRequestDto userDto)
         {

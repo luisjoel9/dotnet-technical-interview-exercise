@@ -4,6 +4,7 @@ namespace BallastLane.ReminderApp.Application.Services
 {
     public interface IUserService
     {
+        Task<AuthResponseDto> LoginAsync(LoginRequestDto request);
         Task<IEnumerable<UserResponseDto>> GetAllAsync();
         Task<UserResponseDto> GetByIdAsync(Guid id);
         Task<UserResponseDto> GetByEmailAsync(string email);

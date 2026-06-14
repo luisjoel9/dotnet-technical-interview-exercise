@@ -13,6 +13,7 @@ namespace BallastLane.ReminderApp.Application.UnitTests
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IMapper _mapper;
+        private readonly IJwtProvider _jwtProvider;
         private readonly UserService _userService;
 
         public UserServiceTests()
@@ -20,7 +21,8 @@ namespace BallastLane.ReminderApp.Application.UnitTests
             _userRepository = Substitute.For<IUserRepository>();
             _passwordHasher = Substitute.For<IPasswordHasher>();
             _mapper = Substitute.For<IMapper>();
-            _userService = new UserService(_userRepository, _passwordHasher, _mapper);
+            _jwtProvider = Substitute.For<IJwtProvider>();
+            _userService = new UserService(_userRepository, _passwordHasher, _mapper, _jwtProvider);
         }
 
         [Fact]

@@ -17,6 +17,7 @@ namespace BallastLane.ReminderApp.Infrastructure
             services.AddScoped<IReminderRepository, ReminderRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
+            services.AddScoped<IJwtProvider, JwtProvider>();
             MapsterConfig.RegisterMappings();
             services.AddSingleton<IMapper, MapsterAdapter>();
 

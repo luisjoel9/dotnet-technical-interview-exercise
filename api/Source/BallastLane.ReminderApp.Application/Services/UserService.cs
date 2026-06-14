@@ -11,12 +11,14 @@ namespace BallastLane.ReminderApp.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IMapper _mapper;
+        private readonly IJwtProvider _jwtProvider;
 
-        public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, IMapper mapper)
+        public UserService(IUserRepository userRepository, IPasswordHasher passwordHasher, IMapper mapper, IJwtProvider jwtProvider)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _mapper = mapper;
+            _jwtProvider = jwtProvider;
         }
 
         public async Task<IEnumerable<UserResponseDto>> GetAllAsync()
@@ -63,6 +65,44 @@ namespace BallastLane.ReminderApp.Application.Services
         {
             if (string.IsNullOrWhiteSpace(email)) return false;
             return await _userRepository.ExistsEmailAsync(email);
+        }
+
+        public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request)
+        {
+            var errors = new Dictionary<string, string[]>();
+
+            if (string.IsNullOrWhiteSpace(request.Email))
+            {
+                errors.Add(nameof(request.Email), new[] { "Email field cannot be empty." });
+            }
+            else if (!request.Email.Contains("@"))
+            {
+                errors.Add(nameof(request.Email), new[] { "The email format is not valid." });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Password))
+            {
+                errors.Add(nameof(request.Password), new[] { "Password field cannot be empty." });
+            }
+
+            if (errors.Any())
+            {
+                throw new ValidationException(errors);
+            }
+
+            var user = await _userRepository.GetByEmailAsync(request.Email);
+
+            if (user == null || !_passwordHasher.VerifyPassword(request.Password, user.Password))
+            {
+                errors.Add("Credentials", new[] { "User not found or invalid credentials." });
+                throw new ValidationException(errors);
+            }
+
+            var token = _jwtProvider.GenerateToken(user);
+
+            var response = _mapper.Map<AuthResponseDto>(user) with { Token = token };
+
+            return response;
         }
 
         public async Task<UserResponseDto> AddAsync(UserRequestDto userDto)
