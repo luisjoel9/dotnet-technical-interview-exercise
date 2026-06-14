@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BallastLane.ReminderApp.Pre
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BallastLane.ReminderApp.Application.UnitTests", "Tests\BallastLane.ReminderApp.Application.Tests\BallastLane.ReminderApp.Application.UnitTests.csproj", "{82D404E9-67FD-44B6-B838-1BC2C0C53752}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BallastLane.ReminderApp.Presentation.UnitTests", "Tests\BallastLane.ReminderApp.Presentation.UnitTests\BallastLane.ReminderApp.Presentation.UnitTests.csproj", "{38C8D20C-103B-46ED-A4AF-121D1D5D1C47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{82D404E9-67FD-44B6-B838-1BC2C0C53752}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82D404E9-67FD-44B6-B838-1BC2C0C53752}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82D404E9-67FD-44B6-B838-1BC2C0C53752}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38C8D20C-103B-46ED-A4AF-121D1D5D1C47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38C8D20C-103B-46ED-A4AF-121D1D5D1C47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38C8D20C-103B-46ED-A4AF-121D1D5D1C47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38C8D20C-103B-46ED-A4AF-121D1D5D1C47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,5 +59,9 @@ Global
 		{34C0C168-F1CC-41FD-A6AF-DB72BA8EBFEC} = {5B16DB4C-2633-44FD-A61E-25114F144131}
 		{FFD24D57-3BFA-4B75-81F9-87651FCB2B2D} = {5B16DB4C-2633-44FD-A61E-25114F144131}
 		{82D404E9-67FD-44B6-B838-1BC2C0C53752} = {5BCED796-2343-469C-AA0B-7D6494E0A1EA}
+		{38C8D20C-103B-46ED-A4AF-121D1D5D1C47} = {5BCED796-2343-469C-AA0B-7D6494E0A1EA}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1940773F-63CB-4FF7-9C8F-C12DD762B1C3}
 	EndGlobalSection
 EndGlobal

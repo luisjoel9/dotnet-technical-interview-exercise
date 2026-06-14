@@ -19,6 +19,12 @@ namespace BallastLane.ReminderApp.Application.Services
             _mapper = mapper;
         }
 
+        public async Task<IEnumerable<UserResponseDto>> GetAllAsync()
+        {
+            var result = await _userRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<UserResponseDto>>(result);
+        }
+
         public async Task<UserResponseDto> GetByIdAsync(Guid id)
         {
             if (id == Guid.Empty)
@@ -59,7 +65,7 @@ namespace BallastLane.ReminderApp.Application.Services
             return await _userRepository.ExistsEmailAsync(email);
         }
 
-        public async Task AddAsync(UserRequestDto userDto)
+        public async Task<UserResponseDto> AddAsync(UserRequestDto userDto)
         {
             var errors = new Dictionary<string, string[]>();
 
@@ -84,15 +90,12 @@ namespace BallastLane.ReminderApp.Application.Services
 
             string passwordHash = _passwordHasher.HashPassword(userDto.Password);
 
-            var newUser = new User
-            {
-                Id = Guid.NewGuid(),
-                Username = userDto.Username,
-                Email = userDto.Email,
-                Password = passwordHash
-            };
+            var newUser = _mapper.Map<User>(userDto);
+            newUser.Password = passwordHash;
+            var id = await _userRepository.CreateAsync(newUser);
 
-            await _userRepository.CreateAsync(newUser);
+            newUser.Id = id;
+            return _mapper.Map<UserResponseDto>(newUser);
         }
 
         public async Task UpdateAsync(Guid id, UserRequestDto userDto)

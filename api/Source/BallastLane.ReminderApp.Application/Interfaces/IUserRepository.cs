@@ -4,7 +4,7 @@ namespace BallastLane.UserApp.Application.Interfaces
 {
     public interface IUserRepository
     {
-        Task<IEnumerable<User>> GetAllAsync(bool? isCompleted, bool? isOverdue);
+        Task<IEnumerable<User>> GetAllAsync();
         Task<User> GetByIdAsync(Guid id);
         Task<User> GetByEmailAsync(string email);
         Task<bool> ExistsEmailAsync(string email);
