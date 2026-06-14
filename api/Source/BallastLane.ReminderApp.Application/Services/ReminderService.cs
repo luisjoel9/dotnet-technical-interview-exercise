@@ -17,9 +17,14 @@ namespace BallastLane.ReminderApp.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ReminderResponseDto>> GetRemindersAsync(bool? isCompleted, bool? isOverdue)
+        public async Task<IEnumerable<ReminderResponseDto>> GetRemindersAsync(Guid userId, bool? isCompleted, bool? isOverdue)
         {
-            var result = await _repository.GetAllAsync(isCompleted, isOverdue);
+            if (userId == Guid.Empty)
+            {
+                throw new ValidationException("The userId is not valid.");
+            }
+
+            var result = await _repository.GetAllAsync(userId, isCompleted, isOverdue);
             return _mapper.Map<IEnumerable<ReminderResponseDto>>(result);
         }
 

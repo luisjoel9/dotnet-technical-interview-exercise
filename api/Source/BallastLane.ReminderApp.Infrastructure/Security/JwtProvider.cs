@@ -4,14 +4,18 @@ using System.Text;
 using BallastLane.ReminderApp.Application.Interfaces;
 using BallastLane.ReminderApp.Domain.Entities;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
 
 namespace BallastLane.ReminderApp.Infrastructure.Security
 {
     public class JwtProvider : IJwtProvider
     {
-        private readonly string _secretKey = "SUPER_SECRET_KEY_FOR_TECH_INTERVIEW";
-        private readonly string _issuer = "ReminderAppBackend";
-        private readonly string _audience = "ReminderAppFrontend";
+        private readonly JwtOptions _options;
+
+        public JwtProvider(IOptions<JwtOptions> options)
+        {
+            _options = options.Value;
+        }
 
         public string GenerateToken(User user)
         {
@@ -20,17 +24,17 @@ namespace BallastLane.ReminderApp.Infrastructure.Security
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-                new Claim("custom_claim_project", "TechChallenge")
+                new Claim("custom_claim_project", "TechChallenge2026")
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secret));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var expiration = DateTime.UtcNow.AddHours(2);
 
             var tokenOptions = new JwtSecurityToken(
-                issuer: _issuer,
-                audience: _audience,
+                issuer: _options.Issuer,
+                audience: _options.Audience,
                 claims: claims,
                 expires: expiration,
                 signingCredentials: creds

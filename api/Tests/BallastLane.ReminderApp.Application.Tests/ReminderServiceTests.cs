@@ -38,11 +38,11 @@ namespace BallastLane.ReminderApp.Application.UnitTests
                 new ReminderResponseDto(reminderId, userId, "Test Reminder", "Description", targetTime, StatusEnum.Pending)
             };
 
-            _repository.GetAllAsync(isCompleted, isOverdue).Returns(mockReminders);
+            _repository.GetAllAsync(userId, isCompleted, isOverdue).Returns(mockReminders);
             _mapper.Map<IEnumerable<ReminderResponseDto>>(mockReminders).Returns(expectedResponse);
 
             // Act
-            var result = await _reminderService.GetRemindersAsync(isCompleted, isOverdue);
+            var result = await _reminderService.GetRemindersAsync(userId, isCompleted, isOverdue);
 
             // Assert
             Assert.NotNull(result);

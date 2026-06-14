@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { Reminder, ReminderRequestDto, StatusEnum } from '../../../core/models/reminder.model';
+import { Reminder, StatusEnum } from '../../../core/models/reminder.model';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ReminderService } from '../../../core/services/reminder.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -14,18 +14,17 @@ import { CommonModule, DatePipe } from '@angular/common';
   styleUrl: './reminder-list.component.scss'
 })
 export class ReminderListComponent implements OnInit {
-  reminderService = inject(ReminderService);
-  authService = inject(AuthService);
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
+  readonly reminderService = inject(ReminderService);
+  readonly authService = inject(AuthService);
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   reminders = signal<Reminder[]>([]);
-  isEditing = signal<boolean>(false);
+  isEditing = signal(false);
   editingReminderId: string | null = null;
-
-  editingReminderStatus: StatusEnum = StatusEnum.Pending; 
-  statusEnum = StatusEnum;
-
+  
+  public statusEnum = StatusEnum; 
+  
   reminderForm!: FormGroup;
 
   ngOnInit(): void {
@@ -33,61 +32,56 @@ export class ReminderListComponent implements OnInit {
       this.router.navigate(['/login']);
       return;
     }
-
     this.initForm();
     this.loadReminders();
   }
 
   initForm(): void {
     this.reminderForm = this.fb.group({
-      title: ['', [Validators.required]],
+      title: ['', [Validators.required, Validators.maxLength(100)]],
       description: [''],
-      targetDateTime: ['', [Validators.required]]
+      targetDateTime: ['', Validators.required]
     });
   }
 
   loadReminders(): void {
-    this.reminderService.getAll().subscribe((data: any[]) => {
-      const currentUserId = this.authService.currentUser()?.id;
-      this.reminders.set(data.filter(r => r.userId === currentUserId));
+    this.reminderService.getReminders().subscribe({
+      next: (data) => this.reminders.set(data),
+      error: (err) => console.error('Error loading reminders:', err)
     });
   }
 
   saveReminder(): void {
-    const currentUserId = this.authService.currentUser()?.id;
-    if (!currentUserId) return;
+    if (this.reminderForm.invalid) return;
 
-    const payload: ReminderRequestDto = {
-      userId: currentUserId,
-      title: this.reminderForm.value.title,
-      description: this.reminderForm.value.description,
-      targetDateTime: new Date(this.reminderForm.value.targetDateTime).toISOString(),
-      status: this.isEditing() ? this.editingReminderStatus : StatusEnum.Pending 
-    };
+    const formValue = this.reminderForm.value;
 
     if (this.isEditing() && this.editingReminderId) {
-      this.reminderService.update(this.editingReminderId, payload).subscribe(() => {
-        this.cancelEdit();
-        this.loadReminders();
+      this.reminderService.updateReminder(this.editingReminderId, formValue).subscribe({
+        next: () => {
+          this.loadReminders();
+          this.cancelEdit();
+        }
       });
     } else {
-      this.reminderService.create(payload).subscribe(() => {
-        this.reminderForm.reset();
-        this.loadReminders();
+      this.reminderService.createReminder(formValue).subscribe({
+        next: () => {
+          this.loadReminders();
+          this.reminderForm.reset();
+        }
       });
     }
   }
 
-  editReminder(reminder: Reminder): void {
+  editReminder(item: Reminder): void {
     this.isEditing.set(true);
-    this.editingReminderId = reminder.id;
-    this.editingReminderStatus = reminder.status;
+    this.editingReminderId = item.id;
     
-    const formattedDate = new Date(reminder.targetDateTime).toISOString().slice(0, 16);
+    const formattedDate = new Date(item.targetDateTime).toISOString().slice(0, 16);
     
     this.reminderForm.patchValue({
-      title: reminder.title,
-      description: reminder.description,
+      title: item.title,
+      description: item.description,
       targetDateTime: formattedDate
     });
   }
@@ -95,40 +89,27 @@ export class ReminderListComponent implements OnInit {
   cancelEdit(): void {
     this.isEditing.set(false);
     this.editingReminderId = null;
-    this.editingReminderStatus = StatusEnum.Pending;
     this.reminderForm.reset();
   }
 
   deleteReminder(id: string): void {
     if (confirm('Are you sure you want to delete this reminder?')) {
-      this.reminderService.delete(id).subscribe(() => this.loadReminders());
+      this.reminderService.deleteReminder(id).subscribe({
+        next: () => this.loadReminders()
+      });
     }
   }
 
-  completeReminder(reminder: Reminder): void {
-    const payload: ReminderRequestDto = { 
-      userId: reminder.userId,
-      title: reminder.title,
-      description: reminder.description,
-      targetDateTime: new Date(reminder.targetDateTime).toISOString(),
-      status: StatusEnum.Completed 
-    };
-    this.reminderService.update(reminder.id, payload).subscribe(() => this.loadReminders());
+  completeReminder(item: Reminder): void {
+    this.reminderService.completeReminder(item.id).subscribe({
+      next: () => this.loadReminders()
+    });
   }
 
-  snoozeReminder(reminder: Reminder): void {
-    const originalDate = new Date(reminder.targetDateTime);
-    const postponedDate = new Date(originalDate.getTime() + 15 * 60000);
-
-    const payload: ReminderRequestDto = {
-      userId: reminder.userId,
-      title: reminder.title,
-      description: reminder.description,
-      targetDateTime: postponedDate.toISOString(),
-      status: StatusEnum.Postponed
-    };
-
-    this.reminderService.update(reminder.id, payload).subscribe(() => this.loadReminders());
+  snoozeReminder(item: Reminder): void {
+    this.reminderService.postponeReminder(item.id).subscribe({
+      next: () => this.loadReminders()
+    });
   }
 
   logout(): void {
@@ -138,10 +119,10 @@ export class ReminderListComponent implements OnInit {
 
   getStatusClass(status: StatusEnum): string {
     switch (status) {
-      case StatusEnum.Pending: return 'status-pending';
-      case StatusEnum.Postponed: return 'status-postponed';
-      case StatusEnum.Completed: return 'status-completed';
-      case StatusEnum.Overdue: return 'status-overdue';
+      case StatusEnum.Pending: return 'border-pending';
+      case StatusEnum.Postponed: return 'border-postponed';
+      case StatusEnum.Completed: return 'border-completed';
+      case StatusEnum.Overdue: return 'border-overdue';
       default: return '';
     }
   }

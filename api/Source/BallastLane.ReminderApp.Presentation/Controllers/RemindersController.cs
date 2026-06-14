@@ -1,12 +1,15 @@
-﻿using BallastLane.ReminderApp.Application.Dtos;
+﻿using System.Security.Claims;
+using BallastLane.ReminderApp.Application.Dtos;
 using BallastLane.ReminderApp.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BallastLane.ReminderApp.Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RemindersController : ControllerBase
+    [Authorize]
+    public class RemindersController : ApiControllerBase
     {
         private readonly ILogger<RemindersController> _logger;
         private readonly IReminderService _service;
@@ -22,7 +25,8 @@ namespace BallastLane.ReminderApp.Presentation.Controllers
             [FromQuery] bool? isCompleted,
             [FromQuery] bool? isOverdue)
         {
-            var reminders = await _service.GetRemindersAsync(isCompleted, isOverdue);
+            _logger.LogInformation("Fetching reminders for authenticated User: {userId}", CurrentUserId);
+            var reminders = await _service.GetRemindersAsync(CurrentUserId, isCompleted, isOverdue);
             return Ok(reminders);
         }
 
@@ -30,6 +34,10 @@ namespace BallastLane.ReminderApp.Presentation.Controllers
         public async Task<ActionResult<ReminderResponseDto>> GetById(Guid id)
         {
             var reminder = await _service.GetReminderByIdAsync(id);
+            if (reminder.UserId != CurrentUserId)
+            {
+                return Forbid();
+            }
             return Ok(reminder);
         }
 
@@ -37,13 +45,22 @@ namespace BallastLane.ReminderApp.Presentation.Controllers
         public async Task<ActionResult<ReminderResponseDto>> Create(ReminderRequestDto reminder)
         {
             _logger.LogInformation("Creating a new reminder with Title: {title}", reminder.Title);
-            var created = await _service.CreateReminderAsync(reminder);
+
+            var reminderWithUser = reminder with
+            {
+                UserId = CurrentUserId
+            };
+
+            var created = await _service.CreateReminderAsync(reminderWithUser);
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, ReminderRequestDto reminder)
         {
+            var currentReminder = await _service.GetReminderByIdAsync(id);
+            if (currentReminder.UserId != CurrentUserId) return Forbid();
+
             _logger.LogInformation("Updating reminder with Id: {id}", id);
             await _service.UpdateReminderAsync(id, reminder);
             return NoContent();
@@ -52,6 +69,8 @@ namespace BallastLane.ReminderApp.Presentation.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            var currentReminder = await _service.GetReminderByIdAsync(id);
+            if (currentReminder.UserId != CurrentUserId) return Forbid();
             _logger.LogInformation("Deleting reminder with Id: {id}", id);
             await _service.DeleteReminderAsync(id);
             return NoContent();

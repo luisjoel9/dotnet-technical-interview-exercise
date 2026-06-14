@@ -15,11 +15,11 @@ namespace BallastLane.ReminderApp.Infrastructure.Repositories
             _factory = factory;
         }
 
-        public async Task<IEnumerable<Reminder>> GetAllAsync(bool? isCompleted, bool? isOverdue)
+        public async Task<IEnumerable<Reminder>> GetAllAsync(Guid userId, bool? isCompleted, bool? isOverdue)
         {
             var reminders = new List<Reminder>();
 
-            var query = "SELECT Id, UserId, Title, Description, TargetDateTime, Status FROM Reminder WHERE 1=1";
+            var query = "SELECT Id, UserId, Title, Description, TargetDateTime, Status FROM Reminder WHERE UserId = @UserId";
 
             if (isCompleted.HasValue)
             {
@@ -39,7 +39,7 @@ namespace BallastLane.ReminderApp.Infrastructure.Repositories
 
             using var connection = _factory.CreateConnection();
             using var command = new SqlCommand(query, connection);
-
+            command.Parameters.AddWithValue("@UserId", userId);
             if (isCompleted.HasValue)
             {
                 command.Parameters.AddWithValue("@StatusCompleted", (int)StatusEnum.Completed);

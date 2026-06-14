@@ -4,7 +4,7 @@ namespace BallastLane.ReminderApp.Application.Interfaces
 {
     public interface IReminderRepository
     {
-        Task<IEnumerable<Reminder>> GetAllAsync(bool? isCompleted, bool? isOverdue);
+        Task<IEnumerable<Reminder>> GetAllAsync(Guid userId, bool? isCompleted, bool? isOverdue);
         Task<Reminder?> GetByIdAsync(Guid id);
         Task<Guid> CreateAsync(Reminder reminder);
         Task<Guid> UpdateAsync(Reminder reminder);

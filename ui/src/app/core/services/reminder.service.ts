@@ -1,35 +1,45 @@
 import { inject, Injectable } from '@angular/core';
 import { Reminder, ReminderRequestDto } from '../models/reminder.model';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from '../../../environments/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReminderService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:5000/api/reminders';
+  private readonly apiUrl = `${environment.apiUrl}/reminders`;
 
-  getAll(isCompleted?: boolean, isOverdue?: boolean): Observable<Reminder[]> {
-    const params: any = {};
-    if (isCompleted !== undefined) params.isCompleted = isCompleted;
-    if (isOverdue !== undefined) params.isOverdue = isOverdue;
+  getReminders(isCompleted?: boolean, isOverdue?: boolean): Observable<Reminder[]> {
+    let params = new HttpParams();
+    if (isCompleted !== undefined) params = params.set('isCompleted', isCompleted.toString());
+    if (isOverdue !== undefined) params = params.set('isOverdue', isOverdue.toString());
+
     return this.http.get<Reminder[]>(this.apiUrl, { params });
   }
 
-  getById(id: string): Observable<Reminder> {
+  getReminderById(id: string): Observable<Reminder> {
     return this.http.get<Reminder>(`${this.apiUrl}/${id}`);
   }
 
-  create(reminder: ReminderRequestDto): Observable<Reminder> {
+  createReminder(reminder: ReminderRequestDto): Observable<Reminder> {
     return this.http.post<Reminder>(this.apiUrl, reminder);
   }
 
-  update(id: string, reminder: ReminderRequestDto): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}`, reminder);
+  updateReminder(id: string, reminder: ReminderRequestDto): Observable<boolean> {
+    return this.http.put<boolean>(`${this.apiUrl}/${id}`, reminder);
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deleteReminder(id: string): Observable<boolean> {
+    return this.http.delete<boolean>(`${this.apiUrl}/${id}`);
+  }
+
+  completeReminder(id: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/complete`, {});
+  }
+
+  postponeReminder(id: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/postpone`, {});
   }
 }

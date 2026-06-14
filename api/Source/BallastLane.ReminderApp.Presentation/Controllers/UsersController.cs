@@ -6,7 +6,7 @@ namespace BallastLane.ReminderApp.Presentation.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController : ApiControllerBase
     {
         private readonly ILogger<UsersController> _logger;
         private readonly IUserService _service;
