@@ -7,13 +7,19 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <RunSettingsFilePath>C:\Users\joel\Documents\Ballast\version1\dotnet-technical-interview-exercise\api\Tests\BallastLane.ReminderApp.Application.Tests\bin\Debug\net8.0\fine-code-coverage\coverage-tool-output\BallastLane.ReminderApp.Application.UnitTests-fcc-mscodecoverage-generated.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\BallastLane.ReminderApp.Application\BallastLane.ReminderApp.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
