@@ -1,0 +1,56 @@
+<div class="login-container">
+  <div class="card">
+    <h2>ReminderApp - Login</h2>
+    <p class="subtitle">Enter your credentials to access your reminders</p>
+    
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm" novalidate>
+      
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          [(ngModel)]="email" 
+          required 
+          minlength="3"
+          placeholder="Enter your email"
+          class="form-control"
+          #emailCtrl="ngModel" />
+        @if (emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)) {
+          <small class="text-danger">Email is required (minimum 6 characters).</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          [(ngModel)]="password" 
+          required 
+          placeholder="Enter your password"
+          class="form-control"
+          #passwordCtrl="ngModel" />
+        @if (passwordCtrl.invalid && (passwordCtrl.dirty || passwordCtrl.touched)) {
+          <small class="text-danger">Password field cannot be empty.</small>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-banner" role="alert">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <button 
+        type="submit" 
+        [disabled]="loginForm.invalid" 
+        class="btn btn-primary">
+        Sign In
+      </button>
+
+    </form>
+  </div>
+</div>

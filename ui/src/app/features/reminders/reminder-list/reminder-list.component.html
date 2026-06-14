@@ -1,0 +1,65 @@
+<div class="dashboard">
+  <header>
+    <h1>Hi, {{ authService.currentUser()?.username }}</h1>
+    <button (click)="logout()" class="btn btn-logout">Log Out</button>
+  </header>
+
+  <main class="content-layout">
+    <section class="form-section">
+      <h3>{{ isEditing() ? 'Edit Reminder' : 'New Reminder' }}</h3>
+      <form [formGroup]="reminderForm" (ngSubmit)="saveReminder()">
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" formControlName="title" class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea formControlName="description" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Target Date and Time *</label>
+          <input type="datetime-local" formControlName="targetDateTime" class="form-control" />
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" [disabled]="reminderForm.invalid" class="btn btn-save">
+            {{ isEditing() ? 'Update' : 'Save' }}
+          </button>
+          @if (isEditing()) {
+            <button type="button" (click)="cancelEdit()" class="btn btn-cancel">Cancel</button>
+          }
+        </div>
+      </form>
+    </section>
+
+    <section class="list-section">
+      <h3>Your Reminders</h3>
+      
+      <div class="grid-reminders">
+        @for (item of reminders(); track item.id) {
+          <div class="card-reminder" [ngClass]="getStatusClass(item.status)">
+            <div class="card-body">
+              <h4>{{ item.title }}</h4>
+              <p>{{ item.description || 'No description' }}</p>
+              <small>{{ item.targetDateTime | date: 'short' }}</small>
+              <div class="badge">{{ getStatusLabel(item.status) }}</div>
+            </div>
+
+            <div class="card-actions">
+              @if (item.status !== statusEnum.Completed) {
+                <button (click)="completeReminder(item)" class="btn-icon text-success" title="Complete"></button>
+                <button (click)="snoozeReminder(item)" class="btn-icon text-warning" title="Snooze"></button>
+              }
+              <button (click)="editReminder(item)" class="btn-icon text-info" title="Edit"></button>
+              <button (click)="deleteReminder(item.id)" class="btn-icon text-danger" title="Delete"></button>
+            </div>
+          </div>
+        } @empty {
+          <p class="empty-state">You don't have any reminders yet. Start by adding one!</p>
+        }
+      </div>
+    </section>
+  </main>
+</div>
