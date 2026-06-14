@@ -149,7 +149,24 @@ Create a SQL Server database and update the connection string in the API configu
 }
 ```
 
-Execute the SQL script included in the project to create the required tables.
+To create the SQL Server database and populate it with initial seed data, navigate to the project's root directory and execute the SQL scripts located in the Scripts folder in the following order:
+
+01_CreateDatabase.sql – Creates the database schema, tables, and required objects.
+02_SeedData.sql – Inserts sample data required for testing and development.
+
+Note: Ensure that SQL Server is running and that you have the necessary permissions to create databases and execute scripts before running these files.
+
+### Credentials
+#### User 1:
+```bash
+"email": "pepe@asdf.com",
+"password": "joel1234" 
+```
+#### User 2:
+```bash
+"email": "cris@asdf.com",
+"password": "123456" 
+```
 
 ---
 
@@ -279,3 +296,120 @@ dotnet test --collect:"XPlat Code Coverage"
 - Protected endpoints require a valid JWT token.
 - The application follows Clean Architecture principles.
 - Database access is implemented using ADO.NET without Entity Framework, Dapper or any other ORM.
+
+## Generative AI tools
+For this exercise I used GitHub Copilot as the Generative AI coding assistant.
+
+## Generative AI Prompt
+
+Develop a complete task management application using ASP.NET Core 8 Web API and Angular 18.
+
+### Backend Requirements
+
+- Use ASP.NET Core 8 Web API.
+- Follow Clean Architecture principles.
+- Create the following layers:
+  - Domain
+  - Application
+  - Infrastructure
+  - Presentation
+- Do not use Entity Framework, Dapper, or MediatR.
+- Use SQL Server as the database.
+- Implement repositories using ADO.NET.
+- Use dependency injection.
+- Implement JWT authentication.
+
+### User Features
+
+- User registration.
+- User login.
+- Password hashing.
+- JWT token generation.
+- Public and protected endpoints.
+
+### Task Features
+
+- Create, read, update, and delete tasks.
+- Each task must contain:
+  - Id (Guid)
+  - Title
+  - Description
+  - Status
+  - DueDate
+  - UserId
+- A task must belong to a user.
+- Only authenticated users can manage their tasks.
+
+### Validation Rules
+
+- Title is required.
+- Title maximum length is 100 characters.
+- Due date cannot be earlier than the current date.
+- Return appropriate validation messages and HTTP status codes.
+
+### Tests
+
+- Generate unit tests using xUnit.
+- Include tests for controllers, services, and repositories.
+
+### Frontend Requirements
+
+- Use Angular 18 with standalone components.
+- Create a responsive user interface.
+- Use Angular routing.
+- Implement JWT authentication.
+- Store the token securely in local storage.
+- Create login and registration pages.
+- Create a task dashboard.
+- Implement task creation, editing, deletion, and listing.
+- Use Angular services to communicate with the backend.
+- Implement route guards for protected pages.
+- Display validation messages in forms.
+- Organize the code using feature-based folders.
+
+### Project Structure
+
+- Provide a recommended folder structure for both backend and frontend.
+- Include dependency injection configuration.
+- Include sample SQL scripts for database creation.
+- Include seeded data with a demo user and sample tasks.
+- Include a README with setup instructions.
+
+#### Validating AI Suggestions
+
+I used the generated code as a starting point but I reviewed everything before using it in the project.
+
+Some of the things I checked were:
+
+- That responsibilities were separated among controllers, services, and repositories.
+- That business logic was not implemented directly in the controllers.
+- That endpoints returned the correct HTTP status codes.
+- That authentication and JWT generation worked correctly.
+- That the SQL queries matched the database schema.
+- That application layer did not use any third party implementation like mappers, jwt helpers, etc.
+
+### Corrections and improvements made
+
+The generated code was useful but some changes were necessary before could be used.
+
+#### Additional validations
+
+Some validations were missing, so I added checks such as:
+
+The title cannot be empty.
+Expiration dates cannot be set in the past.
+
+#### Authentication Improvements
+
+The initial code stored passwords in plain text, which is unacceptable. I fixed this by hashing the passwords before storing them and validating the hash during login, jwt tokens were also configured.
+
+#### Error Handling
+
+I added centralized exception handling so that the API returns consistent error responses instead of exposing internal exceptions.
+
+#### API Behavior
+
+I also verified that the API returns the expected status codes based on the operations result, such as success responses, validation errors, unauthorized access and not-found resource scenarios.
+
+#### Outcome
+The GitHub Copilot output is represented by images in the genai-screenshots folder located in the project root directory.
